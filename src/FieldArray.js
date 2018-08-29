@@ -66,6 +66,27 @@ class FieldArray extends React.PureComponent<Props, State> {
     this.mounted = false
   }
 
+  isEqual = (a: Array<any>, b: Array<any>) => {
+    if (a === b) {
+      return true
+    }
+
+    if (!a && !b) {
+      return true
+    }
+
+    if (Array.isArray(a) && Array.isArray(b) && a.length === b.length) {
+      const { isEqual } = this.props
+      return a.reduce(
+        (agg, curr, i) =>
+          agg && isEqual ? isEqual(curr, b[i]) : curr === b[i],
+        true
+      )
+    }
+
+    return false
+  }
+
   subscribe = (
     { name, subscription }: Props,
     listener: (state: FieldState) => void
@@ -75,6 +96,7 @@ class FieldArray extends React.PureComponent<Props, State> {
       listener,
       subscription ? { ...subscription, length: true } : all,
       {
+        isEqual: this.isEqual,
         getValidator: () => this.validate
       }
     )
